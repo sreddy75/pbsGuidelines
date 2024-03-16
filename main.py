@@ -39,7 +39,7 @@ def get_api_key():
 
 openai_api_key = get_api_key()
 
-st.markdown("## query the PBAC guideline doc")
+st.markdown("##PBAC guideline")
 
 def get_text():
     input_text = st.text_area(label="Query Input", label_visibility='collapsed', placeholder="Your query...", key="query_input")
