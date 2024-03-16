@@ -12,7 +12,7 @@ load_dotenv()
 # Access environment variables
 #openai_api_key = os.getenv("OPENAI_API_KEY")
 doc_path = os.getenv("DOC_PATH")
-print(doc_path)
+print("%%%%%%",doc_path)
 
 st.set_page_config(page_title="Read PBS Guideline", page_icon=":robot:")
 
