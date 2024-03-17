@@ -61,8 +61,11 @@ if query_input:
         st.warning('Please insert OpenAI API Key. Instructions [here](https://help.openai.com/en/articles/4936850-where-do-i-find-my-secret-api-key)', icon="⚠️")
         st.stop()
 
-loader = DirectoryLoader(doc_path+'/', glob='**/*.txt')
+#loader = DirectoryLoader(doc_path+'/', glob='**/*.txt')
 # Load up your text into documents
+#documents = loader.load()
+
+loader = PyPDFLoader(doc_path+"pbac-v5.pdf", extract_images=True)
 documents = loader.load()
 
 print("length of documents: ", len(documents))
@@ -81,18 +84,14 @@ docsearch = FAISS.from_documents(texts, embeddings)
 llm = OpenAI(openai_api_key=openai_api_key)
 # Create your Retriever
 qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=docsearch.as_retriever())
-
-#loader = PyPDFLoader(absolute_path+"/sample_data/pbac-guidelines-version-5.pdf", extract_images=True)
-#loader = PyPDFLoader(location, extract_images=True)
-#documents = loader.load()
         
 st.markdown("### Response:")
 
 template = """
-    Below is an query that may be asked.
-    Your goal is to:
-    - Search all of the document for the query
-    - provide an detailed explanation
+    you are an expert research assistant around the pbac guidelines. your goal is to search the document and find 
+    the information for the given query and provide an detailed explanation.
+
+    also list the relevant sections of the document that contains the response as a bullet points at the end of the response.
 
     QUERY: {query}
     YOUR RESPONSE:
