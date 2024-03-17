@@ -17,6 +17,9 @@ load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 doc_path = os.getenv("DOC_PATH")
 
+print("key: ", openai_api_key)
+print("path: ", doc_path)
+
 st.set_page_config(page_title="Read PBS Guideline", page_icon=":robot:")
 
 st.header("Parse PBS guidelines")
@@ -61,10 +64,15 @@ if query_input:
 loader = DirectoryLoader(doc_path+'/', glob='**/*.txt')
 # Load up your text into documents
 documents = loader.load()
+
+print("length of documents: ", len(documents))
+
 # Get your text splitter ready
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
 # Split your documents into texts
 texts = text_splitter.split_documents(documents)
+print("length of document splits: ", len(texts))
+print("length of document split text[0]: ", texts[0])
 # Turn your texts into embeddings
 embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
 # Get your docsearch ready
