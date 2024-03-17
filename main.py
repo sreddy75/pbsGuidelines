@@ -1,7 +1,5 @@
 from dotenv import load_dotenv
 import os
-import pypdf
-
 import streamlit as st
 from langchain_openai import OpenAI
 from langchain_community.vectorstores import FAISS
@@ -11,6 +9,7 @@ from langchain.prompts import PromptTemplate
 from langchain_community.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
+from pypdf import PdfReader
 
 load_dotenv()
 
