@@ -1,5 +1,6 @@
 from langchain_community.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import PyPDFLoader
 
 class DocumentLoader:
     
@@ -9,6 +10,11 @@ class DocumentLoader:
             loader = DirectoryLoader(location, glob='**/*.txt')            
             documents = loader.load()
             return documents
+        elif docType=='pdf':
+            #loader = PyPDFLoader(absolute_path+"/sample_data/pbac-guidelines-version-5.pdf", extract_images=True)
+            loader = PyPDFLoader(location, extract_images=True)
+            documents = loader.load()
+            return documents        
         
     def chunkDocText(documents, chunk_size, chunk_overlap):
         # Get your text splitter ready

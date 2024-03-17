@@ -2,17 +2,20 @@ from dotenv import load_dotenv
 import os
 
 import streamlit as st
-
-from src.document_loader import DocumentLoader
-from src.openAI_helper import OpenAIHelper
-from src.prompt_generator import PromptGenerator
+from langchain_openai import OpenAI
+from langchain_community.vectorstores import FAISS
+from langchain_openai import OpenAIEmbeddings
+from langchain.chains import RetrievalQA
+from langchain.prompts import PromptTemplate
+from langchain_community.document_loaders import DirectoryLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import PyPDFLoader
 
 load_dotenv()
 
 # Access environment variables
-#openai_api_key = os.getenv("OPENAI_API_KEY")
+openai_api_key = os.getenv("OPENAI_API_KEY")
 doc_path = os.getenv("DOC_PATH")
-print("%%%%%%",doc_path)
 
 st.set_page_config(page_title="Read PBS Guideline", page_icon=":robot:")
 
@@ -33,13 +36,14 @@ with col2:
 def get_api_key():
     input_text = st.text_input(label="OpenAI API Key ",  
                                placeholder="Ex: sk-2twmA8tfCb8un4...", 
-                               key="openai_api_key_input"                               
+                               key="openai_api_key_input",
+                               value=openai_api_key                               
                                )
     return input_text
 
 openai_api_key = get_api_key()
 
-st.markdown("##PBAC guideline")
+st.markdown("## PBAC guideline")
 
 def get_text():
     input_text = st.text_area(label="Query Input", label_visibility='collapsed', placeholder="Your query...", key="query_input")
@@ -54,11 +58,41 @@ if query_input:
         st.warning('Please insert OpenAI API Key. Instructions [here](https://help.openai.com/en/articles/4936850-where-do-i-find-my-secret-api-key)', icon="⚠️")
         st.stop()
 
-llm = OpenAIHelper.loadllm(openai_api_key)
-texts = DocumentLoader.load_documents_in_chunks(doc_path, 'txt', 1000, 0)
-# embed texts and get retriever for the llm 
-qa = OpenAIHelper.get_query_retriever_for_llm(openai_api_key, texts)
+loader = DirectoryLoader(doc_path+'/', glob='**/*.txt')
+# Load up your text into documents
+documents = loader.load()
+# Get your text splitter ready
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+# Split your documents into texts
+texts = text_splitter.split_documents(documents)
+# Turn your texts into embeddings
+embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
+# Get your docsearch ready
+docsearch = FAISS.from_documents(texts, embeddings)
+# Load up your LLM
+llm = OpenAI(openai_api_key=openai_api_key)
+# Create your Retriever
+qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=docsearch.as_retriever())
+
+#loader = PyPDFLoader(absolute_path+"/sample_data/pbac-guidelines-version-5.pdf", extract_images=True)
+#loader = PyPDFLoader(location, extract_images=True)
+#documents = loader.load()
+        
 st.markdown("### Response:")
+
+template = """
+    Below is an query that may be asked.
+    Your goal is to:
+    - Search all of the document for the query
+    - provide an detailed explanation
+
+    QUERY: {query}
+    YOUR RESPONSE:
+"""
+prompt = PromptTemplate(
+    input_variables=["query"],
+    template=template,
+)
 
 if len(query_input.split(" ")) <= 1:
     #do nothing prompt for a question
@@ -67,7 +101,7 @@ elif len(query_input.split(" ")) > 700:
     st.write("Please enter a shorter question. The maximum length is 700 words.")
     st.stop()
 else:
-    prompt_with_query = PromptGenerator.prompt.format(query=query_input)    
+    prompt_with_query = prompt.format(query=query_input)    
     # Run a query
     query = prompt_with_query
     response = qa({"query": query})
