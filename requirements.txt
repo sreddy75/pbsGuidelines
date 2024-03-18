@@ -40,6 +40,7 @@ etelemetry==0.3.1
 exceptiongroup==1.2.0
 executing==2.0.1
 faiss-cpu==1.8.0
+faiss-gpu
 fastjsonschema==2.19.1
 filelock==3.13.1
 filetype==1.2.0
