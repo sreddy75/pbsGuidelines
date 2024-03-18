@@ -6,9 +6,8 @@ from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
-from langchain_community.document_loaders import DirectoryLoader
+from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import PyPDFLoader
 
 load_dotenv()
 
@@ -60,7 +59,7 @@ if query_input:
         st.warning('Please insert OpenAI API Key. Instructions [here](https://help.openai.com/en/articles/4936850-where-do-i-find-my-secret-api-key)', icon="⚠️")
         st.stop()
 
-loader = DirectoryLoader(doc_path+'/', glob='**/*.txt')
+loader = TextLoader(doc_path+'pbac-v5.txt')
 #Load up your text into documents
 documents = loader.load()
 
