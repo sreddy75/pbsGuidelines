@@ -60,12 +60,12 @@ if query_input:
         st.warning('Please insert OpenAI API Key. Instructions [here](https://help.openai.com/en/articles/4936850-where-do-i-find-my-secret-api-key)', icon="⚠️")
         st.stop()
 
-#loader = DirectoryLoader(doc_path+'/', glob='**/*.txt')
-# Load up your text into documents
-#documents = loader.load()
-
-loader = PyPDFLoader(doc_path+"pbac-v5.pdf", extract_images=True)
+loader = DirectoryLoader(doc_path+'/', glob='**/*.txt')
+#Load up your text into documents
 documents = loader.load()
+
+#loader = PyPDFLoader(doc_path+"pbac-v5.pdf", extract_images=True)
+#documents = loader.load()
 
 print("length of documents: ", len(documents))
 
